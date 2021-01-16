@@ -16,6 +16,7 @@ namespace NEWS
         public Login()
         {
             InitializeComponent();
+            skinEngine1.SkinFile = Application.StartupPath + @"/Skins/mp10.ssk";
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -32,6 +33,8 @@ namespace NEWS
                 if (i == 1)
                 {
                     MessageBox.Show("登录成功"+i);
+                    new Admin().Show();
+                    this.Hide();
                 }
                 else
                 {

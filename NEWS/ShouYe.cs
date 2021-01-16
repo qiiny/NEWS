@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace NEWS
@@ -18,8 +11,10 @@ namespace NEWS
         }
         private void ShouYe_Load(object sender, EventArgs e)
         {
+            skinEngine1.SkinFile = Application.StartupPath + @"/Skins/mp10.ssk";
             string s=new DbHelerMySQL().select();
             richTextBoxTM1.Text = s;
+            pictureBox1.Load(Application.StartupPath + @"\images\55-1Q212145911R3.jpg");
         }
     }
 }

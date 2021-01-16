@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data;
 
 namespace NEWS
@@ -11,7 +12,7 @@ namespace NEWS
 
         public DbHelerMySQL()
         {
-            con = new MySqlConnection("server=101.37.77.246;port=3306;user=root;password=root; database=News;");
+            con = new MySqlConnection("server=101.37.77.246;port=3306;user=root;password=root; database=News;Charset=utf8");
         }
 
         public string select()
@@ -33,6 +34,21 @@ namespace NEWS
             return r;
         }
 
+        public List<string> GetTypeName()
+        {
+            List<string> list = new List<string>();
+            con.Open();
+            cmd = con.CreateCommand();
+            cmd.CommandText = "SELECT TypeName FROM newstype;";
+            MySqlDataReader dataReader = cmd.ExecuteReader();
+            while (dataReader.Read())
+            {
+                list.Add(dataReader[0].ToString());
+            }
+            con.Close();
+            return list;
+        }
+
         public int Login(string username, string password)
         {
             con.Open();
@@ -45,75 +61,52 @@ namespace NEWS
             return count;
         }
 
-        //public void addData(SqlData data)
-        //{
-        //    _sqlConnection.Open();
-        //    _command = _sqlConnection.CreateCommand();
-        //    _command.CommandText = "INSERT INTO [User] (name,pwd) VALUES (@name,@code)";
-        //    _command.Parameters.Add("@name", data.Name);
-        //    _command.Parameters.Add("@code", data.Pwd);
-        //    _command.ExecuteNonQuery();
-        //    _sqlConnection.Close();
-        //}
+        public DataSet GetNewsList(int v)
+        {
+            string sql;
+            if (v == 0)
+            {
+                 sql= "SELECT newsid,newstype.TypeName,title,content,author,addtime,temp FROM tb_newsarticle,newstype WHERE tb_newsarticle.type=newstype.TypeId";
+            }
+            else
+            {
+                sql = "SELECT newsid,newstype.TypeName,title,content,author,addtime,temp FROM tb_newsarticle,newstype WHERE tb_newsarticle.type=newstype.TypeId and newstype.TypeId="+v;
+            }
+            
+            MySqlDataAdapter adapter = new MySqlDataAdapter(sql, con);
+            DataSet dataSet = new DataSet();
+            adapter.Fill(dataSet);
+            con.Close();
+            return dataSet;
+        }
 
-        //public List<SqlData> select()
-        //{
-        //    List<SqlData> list = new List<SqlData>();
-        //    _command = _sqlConnection.CreateCommand();
-        //    _sqlConnection.Open();
-        //    _command.CommandText = "select * from [user]";
-        //    SqlDataReader dataReader = _command.ExecuteReader();
-        //    while (dataReader.Read())
-        //    {
-        //        SqlData data = new SqlData();
-        //        data.Id = dataReader["id"].ToString();
-        //        data.Name = dataReader["name"].ToString();
-        //        data.Pwd = dataReader["pwd"].ToString();
-        //        list.Add(data);
-        //    }
-        //    _sqlConnection.Close();
-        //    return list;
-        //}
+        public void AddNews(Newsarticle newsarticle)
+        {
+            con.Open();
+            cmd = con.CreateCommand();
+            cmd.CommandText = "insert into tb_newsarticle(type,title,content,author,addtime) values(@type,@title,@content,@author,now())";
+            cmd.Parameters.AddWithValue("@type", newsarticle.Typename);
+            cmd.Parameters.AddWithValue("@title", newsarticle.Title);
+            cmd.Parameters.AddWithValue("@content", newsarticle.Content);
+            cmd.Parameters.AddWithValue("@author", newsarticle.Author);
+            cmd.ExecuteNonQuery();
+            con.Close();
+        }
 
-        //public List<SqlData> select(string uname)
-        //{
-        //    List<SqlData> list = new List<SqlData>();
-        //    _command = _sqlConnection.CreateCommand();
-        //    _sqlConnection.Open();
-        //    _command.CommandText = "select * from dbo.[User] where name like '%" + uname + "%'";
-        //    SqlDataReader dataReader = _command.ExecuteReader();
-        //    while (dataReader.Read())
-        //    {
-        //        SqlData data = new SqlData();
-        //        data.Id = dataReader["id"].ToString();
-        //        data.Name = dataReader["name"].ToString();
-        //        data.Pwd = dataReader["pwd"].ToString();
-        //        list.Add(data);
-        //    }
-        //    _sqlConnection.Close();
-        //    return list;
-        //}
+        public void UpdateNews(Newsarticle newsarticle)
+        {
+            con.Open();
+            cmd = con.CreateCommand();
+            cmd.CommandText = "update tb_newsarticle set type=@typename,title=@title,content=@content,author=@author,addtime=now() where newsid=@newsid";
+            cmd.Parameters.AddWithValue("@typename", newsarticle.Typename);
+            cmd.Parameters.AddWithValue("@title", newsarticle.Title);
+            cmd.Parameters.AddWithValue("@content", newsarticle.Content);
+            cmd.Parameters.AddWithValue("@author", newsarticle.Author);
+            cmd.Parameters.AddWithValue("@newsid", newsarticle.Newid);
+            cmd.ExecuteNonQuery();
+            con.Close();
+        }
 
-        //public void update(SqlData data)
-        //{
-        //    _sqlConnection.Open();
-        //    _command = _sqlConnection.CreateCommand();
-        //    _command.CommandText = "update [user] set name=@name,pwd=@pwd where id=@id";
-        //    _command.Parameters.Add("@name", data.Name);
-        //    _command.Parameters.Add("@pwd", data.Pwd);
-        //    _command.Parameters.Add("@id", data.Id);
-        //    _command.ExecuteNonQuery();
-        //    _sqlConnection.Close();
-        //}
-
-        //public void delete(SqlData data)
-        //{
-        //    _sqlConnection.Open();
-        //    _command = _sqlConnection.CreateCommand();
-        //    _command.CommandText = "delete from [user] where id=@id";
-        //    _command.Parameters.Add("@id", data.Id);
-        //    _command.ExecuteNonQuery();
-        //    _sqlConnection.Close();
-        //}
+  
     }
 }
